@@ -1,49 +1,52 @@
-// ১. আপনার Apps Script URL (নিশ্চিত করুন এটি একদম লেটেস্ট Deployment URL)
+// আপনার Apps Script URL টি এখানে দিন
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw44V3kHzzUIdRpZJkCw9EVwlFW0EMzqYbOtXngB67HW0YVcVHzG4Vm9EKhRpNd3YOTg/exec"; 
 
-// ২. উন্নত মানের Proxy যা withSuccessHandler সাপোর্ট করে
 const google = {
   script: {
-    run: new Proxy({}, {
-      get: (target, prop) => {
-        const context = {
-          success: () => {},
-          failure: (err) => console.error("Apps Script Error:", err)
-        };
+    run: (() => {
+      let successHandler = null;
+      let failureHandler = null;
 
-        const runner = new Proxy({}, {
-          get: (t, name) => {
-            if (name === 'withSuccessHandler') return (cb) => { context.success = cb; return runner; };
-            if (name === 'withFailureHandler') return (cb) => { context.failure = cb; return runner; };
-            // আসল ফাংশন কল
-            return (...args) => {
-              fetch(WEB_APP_URL, {
-                method: "POST",
-                headers: { "Content-Type": "text/plain;charset=utf-8" }, // CORS সমস্যা এড়াতে এটি জরুরি
-                body: JSON.stringify({ functionName: name, parameters: args })
-              })
-              .then(r => r.json())
-              .then(data => context.success(data))
-              .catch(err => context.failure(err));
+      const execute = (funcName, args) => {
+        fetch(WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ functionName: funcName, parameters: args })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (successHandler) successHandler(data);
+          // কল শেষে হ্যান্ডলার রিসেট করা ভালো
+          successHandler = null;
+          failureHandler = null;
+        })
+        .catch(err => {
+          if (failureHandler) failureHandler(err);
+          else console.error("API Error:", err);
+        });
+      };
+
+      const handler = {
+        get: (target, prop) => {
+          if (prop === 'withSuccessHandler') {
+            return (cb) => {
+              successHandler = cb;
+              return new Proxy({}, handler);
             };
           }
-        });
+          if (prop === 'withFailureHandler') {
+            return (cb) => {
+              failureHandler = cb;
+              return new Proxy({}, handler);
+            };
+          }
+          // এখানে আসল ফাংশন (যেমন authenticate, toggleWork) ধরা হবে
+          return (...args) => execute(prop, args);
+        }
+      };
 
-        if (prop === 'withSuccessHandler') return (cb) => { context.success = cb; return runner; };
-        if (prop === 'withFailureHandler') return (cb) => { context.failure = cb; return runner; };
-
-        return (...args) => {
-          fetch(WEB_APP_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify({ functionName: prop, parameters: args })
-          })
-          .then(r => r.json())
-          .then(data => context.success(data))
-          .catch(err => context.failure(err));
-        };
-      }
-    })
+      return new Proxy({}, handler);
+    })()
   }
 };
 
