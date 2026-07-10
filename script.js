@@ -1,4 +1,4 @@
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw44V3kHzzUIdRpZJkCw9EVwlFW0EMzqYbOtXngB67HW0YVcVHzG4Vm9EKhRpNd3YOTg/exec; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw44V3kHzzUIdRpZJkCw9EVwlFW0EMzqYbOtXngB67HW0YVcVHzG4Vm9EKhRpNd3YOTg/exec"; 
 const google = {
   script: {
     run: new Proxy({}, {
