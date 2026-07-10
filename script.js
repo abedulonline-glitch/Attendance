@@ -1,37 +1,47 @@
-// ১. গুগল অ্যাপস স্ক্রিপ্ট ব্রীজ (বদলানোর দরকার নেই)
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3uW1l4Pkv_jeyWRptX35DdalKrqjoK_sc8ZesBTBIcZVNL8kADVtnozsVcdNSis0vqQ/exec"; 
+// ১. আপনার Apps Script URL (নিশ্চিত করুন এটি একদম লেটেস্ট Deployment URL)
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw44V3kHzzUIdRpZJkCw9EVwlFW0EMzqYbOtXngB67HW0YVcVHzG4Vm9EKhRpNd3YOTg/exec"; 
 
+// ২. উন্নত মানের Proxy যা withSuccessHandler সাপোর্ট করে
 const google = {
   script: {
     run: new Proxy({}, {
       get: (target, prop) => {
-        let successHandler = (res) => {};
-        const runner = {
-          withSuccessHandler: function(cb) {
-            successHandler = cb;
-            return this;
-          },
-          withFailureHandler: function(cb) {
-            return this;
-          }
+        const context = {
+          success: () => {},
+          failure: (err) => console.error("Apps Script Error:", err)
         };
 
-        return new Proxy(() => {}, {
-          apply: (target, thisArg, args) => {
-            fetch(WEB_APP_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                functionName: prop,
-                parameters: args
+        const runner = new Proxy({}, {
+          get: (t, name) => {
+            if (name === 'withSuccessHandler') return (cb) => { context.success = cb; return runner; };
+            if (name === 'withFailureHandler') return (cb) => { context.failure = cb; return runner; };
+            // আসল ফাংশন কল
+            return (...args) => {
+              fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" }, // CORS সমস্যা এড়াতে এটি জরুরি
+                body: JSON.stringify({ functionName: name, parameters: args })
               })
-            })
-            .then(r => r.json())
-            .then(data => successHandler(data))
-            .catch(err => console.error("API Error:", err));
-            return runner;
-          },
-          get: (target, p) => runner[p]
+              .then(r => r.json())
+              .then(data => context.success(data))
+              .catch(err => context.failure(err));
+            };
+          }
         });
+
+        if (prop === 'withSuccessHandler') return (cb) => { context.success = cb; return runner; };
+        if (prop === 'withFailureHandler') return (cb) => { context.failure = cb; return runner; };
+
+        return (...args) => {
+          fetch(WEB_APP_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ functionName: prop, parameters: args })
+          })
+          .then(r => r.json())
+          .then(data => context.success(data))
+          .catch(err => context.failure(err));
+        };
       }
     })
   }
