@@ -1,5 +1,5 @@
 // ১. গুগল অ্যাপস স্ক্রিপ্ট ব্রীজ (বদলানোর দরকার নেই)
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxw44V3kHzzUIdRpZJkCw9EVwlFW0EMzqYbOtXngB67HW0YVcVHzG4Vm9EKhRpNd3YOTg/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw3uW1l4Pkv_jeyWRptX35DdalKrqjoK_sc8ZesBTBIcZVNL8kADVtnozsVcdNSis0vqQ/exec"; 
 
 const google = {
   script: {
