@@ -1,1 +1,25 @@
-
+:root { --gold: #FFD700; --black: #0a0a0a; --card: #161616; }
+        body { background: var(--black); color: white; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        .premium-card { background: var(--card); border: 1px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 15px; }
+        .btn-gold { background: var(--gold); color: black; font-weight: bold; border-radius: 25px; border: none; padding: 10px 20px; transition: 0.3s; }
+        .btn-gold:disabled { background: #444; color: #888; }
+        .btn-stop { background: #ff4d4d; color: white; border-radius: 25px; border: none; padding: 10px 20px; }
+        .hidden { display: none !important; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .online { background: #00ff00; box-shadow: 0 0 8px #00ff00; }
+        .offline { background: #ff0000; }
+        .nav-link { color: #888 !important; border: none !important; cursor: pointer; }
+        .nav-link.active { color: var(--gold) !important; border-bottom: 2px solid var(--gold) !important; background: none !important; }
+        .form-control, .form-select { background: #121212 !important; color: white !important; border: 1px solid #444 !important; }
+        .profile-img-main { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--gold); }
+        .store-img-list { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; }
+        .lang-dropdown { position: absolute; top: 15px; left: 15px; z-index: 1100; }
+        .menu-dropdown { position: absolute; top: 15px; right: 15px; z-index: 1100; }
+        #cropModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .crop-content { background: #161616; padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; }
+        .text-muted, small, label, .small, input::placeholder {color: #636363 !important;}
+        
+        /* ক্যালেন্ডার স্টাইল */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 10px; }
+        .calendar-day { padding: 8px 5px; background: #222; border-radius: 8px; font-size: 11px; text-align: center; cursor: pointer; border: 1px solid #333; color: #888; }
+        .bg-holiday { background: var(--gold) !important; color: black !important; font-weight: bold; }
